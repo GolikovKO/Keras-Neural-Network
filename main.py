@@ -4,7 +4,7 @@ from keras.datasets import imdb, mnist, reuters, boston_housing
 from keras import layers, models
 import numpy as np
 
-from functions import loses, relu_tanh, batch_1, neuron, lay_1, epochs_count, lay_2, batch_2, graph_1, graph_2
+from functions import loses, relu_tanh, batch_1, neuron, lay_1, epochs_count, lay_2, batch_2, graph_1, graph_2, epochs_3
 
 
 def first_exercise():
@@ -132,44 +132,56 @@ def third_exercise():
     test_data -= mean
     test_data /= std
 
-    def build_model():
-        model = models.Sequential()
-        model.add(layers.Dense(64, activation='relu', input_shape=(train_data.shape[1],)))
-        model.add(layers.Dense(64, activation='relu'))
-        model.add(layers.Dense(1))
-        model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
-        return model
-
     k = 4
     num_val_samples = len(train_data) // k
-    num_epochs = 100
-    all_scores = []
 
-    for i in range(k):
-        print('Processing fold #', i)
-        val_data = train_data[i * num_val_samples: (i + 1) * num_val_samples]
-        val_targets = train_targets[i * num_val_samples: (i + 1) * num_val_samples]
+    print('___________________________')
+    batch = 1
+    layers_count = 2
+    print('Количество эпох - 25')
+    epochs_3(25, layers_count, batch, k, train_data, num_val_samples, train_targets)
+    print('___________________________')
+    print('Количество эпох - 50')
+    epochs_3(50, layers_count, batch, k, train_data, num_val_samples, train_targets)
+    print('___________________________')
+    print('Количество эпох - 75')
+    epochs_3(75, layers_count, batch, k, train_data, num_val_samples, train_targets)
+    print('___________________________')
+    print('Количество эпох - 100')
+    epochs_3(100, layers_count, batch, k, train_data, num_val_samples, train_targets)
+    print('___________________________')
 
-        partial_train_data = np.concatenate(
-            [train_data[:i * num_val_samples],
-             train_data[(i + 1) * num_val_samples:]],
-            axis=0)
-        partial_train_targets = np.concatenate(
-            [train_targets[:i * num_val_samples],
-             train_targets[(i + 1) * num_val_samples:]],
-            axis=0)
+    print('Количество слоёв - 1')
+    epochs_3(100, 1, batch, k, train_data, num_val_samples, train_targets)
+    print('Количество слоёв - 2')
+    epochs_3(100, 2, batch, k, train_data, num_val_samples, train_targets)
+    print('Количество слоёв - 3')
+    epochs_3(100, 3, batch, k, train_data, num_val_samples, train_targets)
+    print('___________________________')
 
-        model = build_model()
-        model.fit(partial_train_data, partial_train_targets, epochs=num_epochs, batch_size=1, verbose=0)
-        val_mse, val_mae = model.evaluate(val_data, val_targets, verbose=0)
-        all_scores.append(val_mae)
-        print(all_scores)
-        print(np.mean(all_scores))
+    batch = 20
+    print('Выборка - 20')
+    epochs_3(100, 2, batch, k, train_data, num_val_samples, train_targets)
+    batch = 50
+    print('Выборка - 50')
+    epochs_3(100, 2, batch, k, train_data, num_val_samples, train_targets)
+    batch = 70
+    print('Выборка - 70')
+    epochs_3(100, 2, batch, k, train_data, num_val_samples, train_targets)
+    print('___________________________')
+
+    print('Функция активации relu - 1 слой')
+    epochs_3(100, 1, batch, k, train_data, num_val_samples, train_targets)
+    print('Функция активации relu - 2 слоя')
+    epochs_3(100, 2, batch, k, train_data, num_val_samples, train_targets)
+    print('Функция активации relu - 3 слоя')
+    epochs_3(100, 3, batch, k, train_data, num_val_samples, train_targets)
+    print('////////////////////////////////////////////////////')
 
 
 def main():
-    # first_exercise()
-    # second_exercise()
+    first_exercise()
+    second_exercise()
     third_exercise()
 
 

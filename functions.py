@@ -1,5 +1,54 @@
 from keras import models, layers
 import matplotlib.pyplot as plt
+import numpy as np
+
+
+def epochs_3(num_epochs, layers_count, batch, k, train_data, num_val_samples, train_targets):
+    def build_model(layers_count):
+        if layers_count == 2:
+            model = models.Sequential()
+            model.add(layers.Dense(64, activation='relu', input_shape=(train_data.shape[1],)))
+            model.add(layers.Dense(64, activation='relu'))
+            model.add(layers.Dense(1))
+            model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
+            return model
+        elif layers_count == 1:
+            model = models.Sequential()
+            model.add(layers.Dense(64, activation='relu', input_shape=(train_data.shape[1],)))
+            model.add(layers.Dense(1))
+            model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
+            return model
+        else:
+            model = models.Sequential()
+            model.add(layers.Dense(64, activation='relu', input_shape=(train_data.shape[1],)))
+            model.add(layers.Dense(64, activation='relu'))
+            model.add(layers.Dense(64, activation='relu'))
+            model.add(layers.Dense(1))
+            model.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
+            return model
+
+    all_scores = []
+
+    for i in range(k):
+        print('К-блок номер #', i)
+        val_data = train_data[i * num_val_samples: (i + 1) * num_val_samples]
+        val_targets = train_targets[i * num_val_samples: (i + 1) * num_val_samples]
+
+        partial_train_data = np.concatenate(
+            [train_data[:i * num_val_samples],
+             train_data[(i + 1) * num_val_samples:]],
+            axis=0)
+        partial_train_targets = np.concatenate(
+            [train_targets[:i * num_val_samples],
+             train_targets[(i + 1) * num_val_samples:]],
+            axis=0)
+
+        model = build_model(layers_count)
+        model.fit(partial_train_data, partial_train_targets, epochs=num_epochs, batch_size=batch, verbose=0)
+        val_mse, val_mae = model.evaluate(val_data, val_targets, verbose=0)
+        all_scores.append(val_mae)
+        print('Средняя ошибка -', all_scores)
+        print('Среднее значение ошибки', np.mean(all_scores))
 
 
 def graph_2(history):
